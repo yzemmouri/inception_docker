@@ -1,11 +1,32 @@
 version: '3'
 
 services:
+    wordpress:
+        build: requirements/wordpress/
+        image: wordpresss
+        container_name: wordpress
+        ports:
+            - "9000:9000"
+        env_file:
+            - ./.env
+        restart: unless-stopped
+
     nginx:
         build: requirements/nginx/
-        image: nginx:latest
+        image: nginxx
         container_name: nginx
         ports:
             - "80:80"
             - "443:443"
         restart: unless-stopped
+
+    # mariadb:
+    #     build: requirements/mariadb
+    #     image: mariadbb
+    #     container_name: mariadb
+    #     ports:
+    #         - "3306:3306"
+    #     env_file:
+    #         - ./.env
+    #     restart: unless-stopped
+       
