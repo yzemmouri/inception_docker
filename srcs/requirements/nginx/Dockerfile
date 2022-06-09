@@ -1,31 +1,16 @@
 FROM debian:buster
+EXPOSE 80
+RUN apt-get update && \
+    apt-get upgrade && \
+    apt-get install nginx -y &&\
+    apt-get install php-fpm -y &&\
+    ls /etc/nginx 
+COPY ./conf/default.conf /etc/nginx/sites-available/default
+COPY ./conf/ng.sh /ng.sh
+ RUN chmod +x /ng.sh
+EXPOSE 8000
 
-RUN apt-get update
-RUN apt-get upgrade -y
-RUN apt-get install -y nginx
-RUN apt-get install -y php-fpm
-RUN apt-get install -y openssl
-RUN echo "<h1>Hello world 1337!</h1>" > /var/www/html/index.html
+run sh /ng.sh 
+EXPOSE 443
 
-# nginx SSL
-RUN mkdir -p /etc/ssl/private \
-    mkdir -p /etc/ssl/certs
-
-RUN openssl req -x509 -nodes -days 365 \
-    -subj "/C=CA/ST=QC/O=Company, Inc./CN=mydomain.com" -addext "subjectAltName=DNS:mydomain.com" \
-    -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key \
-    -out /etc/ssl/certs/nginx-selfsigned.crt;
-
-# nginx CONF
-ADD $PWD/conf/default.conf /etc/nginx/sites-available/default
-
-# EXPOSE PORTS
-EXPOSE 80 443
-
-# Start nginx
-CMD ["/bin/sh", "-c", "nginx -g 'daemon off;'; nginx -s reload;"]
-
-
-#info:
-#https://codingwithmanny.medium.com/configure-self-signed-ssl-for-nginx-docker-from-a-scratch-7c2bcd5478c6
-#https://devopsbuzz.com/nginx-docker-container-with-https-protocol/n
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
